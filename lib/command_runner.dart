@@ -81,7 +81,7 @@ class CommandRunner<T> {
       : _argParser = ArgParser(usageLineLength: usageLineLength) {
     argParser.addFlag('help',
         abbr: 'h', negatable: false, help: 'Print this usage information.');
-    addCommand(HelpCommand<T>());
+    addCommand(HelpCommand<T>()..hidden = true);
   }
 
   /// Prints the usage information for this runner.
@@ -338,12 +338,18 @@ abstract class Command<T> {
   /// By default, leaf commands are always visible. Branch commands are visible
   /// as long as any of their leaf commands are visible.
   bool get hidden {
+    if (_hidden != null && _hidden) return true;
+
     // Leaf commands are visible by default.
     if (_subcommands.isEmpty) return false;
 
     // Otherwise, a command is hidden if all of its subcommands are.
     return _subcommands.values.every((subcommand) => subcommand.hidden);
   }
+
+  bool _hidden;
+
+  set hidden(bool value) => _hidden = value;
 
   /// Whether or not this command takes positional arguments in addition to
   /// options.
